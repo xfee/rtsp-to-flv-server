@@ -1,6 +1,6 @@
 # RTSP to FLV Server
 
-一个使用Docker快速容器化部署的， 基于Node.js的RTSP流转FLV格式的转码服务。
+一个基于Node.js的RTSP流转FLV格式的转码服务，使用Docker快速容器化部署。
 
 ## 项目简介
 
@@ -28,31 +28,15 @@
 - FFmpeg
 - Docker和Docker Compose (可选，用于容器化部署)
 
-### 本地安装
+### Docker部署
 
 ```bash
 # 克隆项目
 git clone [repository-url]
 cd rtsp-to-flv-server
 
-# 安装依赖
-npm install
-
-# 启动服务
-npm start
-```
-
-### Docker部署
-
-```bash
 # 使用Docker Compose构建并启动,若首次构建需要数分钟
 docker-compose up -d
-
-# 或者手动构建Docker镜像
-docker build -t rtsp-to-flv-server .
-
-# 运行Docker容器
-docker run -d --name rtsp-to-flv-server -p 15001:15001 rtsp-to-flv-server
 ```
 
 ## 使用方法
@@ -66,57 +50,51 @@ docker run -d --name rtsp-to-flv-server -p 15001:15001 rtsp-to-flv-server
 ```html
 <!-- 完整的HTML示例 -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>RTSP to FLV 播放器</title>
-  <!-- 引入flv.js库 -->
+  <meta charset="UTF-8">
+  <title>FLV over WebSocket</title>
   <script src="https://cdn.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.min.js"></script>
 </head>
 <body>
-  <!-- 视频播放元素 -->
-  <video id="videoElement" controls style="width: 100%; max-width: 800px;"></video>
-  
+  <video id="videoElement" controls autoplay muted width="640" height="360"></video>
+
   <script>
-    // 检查浏览器是否支持flv.js
     if (flvjs.isSupported()) {
-      // 转码服务的地址和端口
+      const videoElement = document.getElementById('videoElement');
+
       const serverAddress = '192.168.1.231:15001';
-      // 标准的rtsp协议的视频流地址，建议先使用vlc等软件验证此rtsp地址是否可以播放
-      const rtspUrl = 'rtsp://admin:yf202505@192.168.1.211:554/cam/realmonitor?channel=1&subtype=0';
-      
-      // 创建flv播放器实例
+
+      let rtspUrl = 'rtsp://admin:yf202505@192.168.1.211:554/cam/realmonitor?channel=1&subtype=0';
+
       const flvPlayer = flvjs.createPlayer({
         type: 'flv',
-        // 使用变量构建WebSocket URL
-        url: `ws://${serverAddress}/${encodeURIComponent(rtspUrl)}`
+        isLive: true,
+
+        url: 'ws://192.168.1.231:15001/rtsp://admin:yf202505@192.168.1.211:554/Streaming/Channels/101/'
       });
-      
-      // 将播放器绑定到video元素
-      flvPlayer.attachMediaElement(document.getElementById('videoElement'));
-      
-      // 加载并播放
+
+      flvPlayer.attachMediaElement(videoElement);
       flvPlayer.load();
       flvPlayer.play();
-      
-      // 页面卸载时销毁播放器
-      window.addEventListener('beforeunload', () => {
-        flvPlayer.destroy();
-      });
     } else {
-      console.error('您的浏览器不支持flv.js，请使用现代浏览器如Chrome、Firefox或Edge。');
+      alert('FLV.js is not supported in your browser.');
     }
   </script>
 </body>
 </html>
+
 ```
 
-## 配置说明
+## 说明
 
-服务默认监听15001端口，可以在app.js中修改：
+- 服务默认监听15001端口，可以在app.js中修改：
 
 ```javascript
 const wss = new WebSocketServer({ port: 15001, perMessageDeflate: false })
 ```
+
+
 
 ## 许可证
 
