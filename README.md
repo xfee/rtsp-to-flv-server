@@ -18,17 +18,17 @@
 
 将RTSP流转换为FLV格式并通过WebSocket传输具有以下优势：
 
-1. **兼容性**：RTSP不是为WEB设计的，web原生不支持RTSP（插件底层也是转码），本方案通过转码flv，结合flv.js库，使几乎所有现代浏览器都能播放
+1. **兼容性**：RTSP不是为WEB设计的，WEB原生不支持RTSP（必须转码，你用的播放插件底层也是转码），本方案通过转码flv，结合flv.js库，使几乎所有现代浏览器都能播放
 
 2. **低延迟**：相比HLS（.m3u8格式）等分段协议，WebSocket+FLV可实现更低的延迟。HLS由于其切片机制（通常为2-10秒每片），天然存在较高延迟，而本方案延迟通常可控制在1-2秒内。
 
-3. **服务器负载低**：按需转码，服务启动后，当没有客户端连接时不会进行转码处理，因此在无活跃连接时服务器资源消耗极低，也不会占用带宽。
+3. **服务器负载低**：按需转码，服务启动后，当没有客户端连接时不会进行转码处理，因此在不播放时服务器资源消耗极低，也不会占用带宽。
 
-4. **网络穿透**：WebSocket基于HTTP协议，能够轻松穿透大多数防火墙。可以被Nginx等反代工具轻松集成，支持域名+后缀转发，非常适合政府和企业网络环境（80端口总得给开吧？能开就能用。）。
+4. **网络穿透**：WebSocket基于HTTP协议，网络方面非常友好。可以被Nginx等工具轻松代理，当然也可以域名+后缀转发，很适合政府和企业网络环境（80端口总得给开吧？能开就能用。）。
 
-5. **后端简单**：使用docker容器化部署，一行命令：docker compose up 即可配置好全部服务，无需你精通配置ffmpeg，nodejs，websocket等。
+5. **后端简单**：使用docker容器化部署，一行命令：docker compose up 即可配置好全部服务，无需你精通ffmpeg，nodejs，websocket等。
 
-6. **客户端简单**：客户端集成非常简单，只需引入flv.js库并编写几行JavaScript代码即可实现视频播放功能，大大降低了开发和集成成本。
+6. **客户端简单**：客户端集成非常简单，只需引入flv.js库并编写几行JavaScript代码即可实现视频播放功能，大大降低开发成本。
 
 7. **适用场景广泛**：低延迟和易于集成，非常适合集成到你系统中， 用于在你的系统中，远程查看园区、小区、工厂等的视频监控等应用场景。
 
@@ -44,20 +44,12 @@
 ### Docker部署
 
 ```bash
-# 克隆项目
 git clone https://github.com/xfee/rtsp-to-flv-server.git
 cd rtsp-to-flv-server
-
-# 使用Docker Compose构建并启动
 docker compose up -d
 ```
 
-## 使用方法
 
-1. 启动服务后，服务将在15001端口监听WebSocket连接
-2. 客户端通过WebSocket连接到服务，把rtsp地址作为参数拼接到服务url的后面
-3. 服务将RTSP流转换为FLV格式并通过WebSocket发送给客户端，客户端接收到FLV数据后，通过flv.js库播放
-4. 客户端实例代码请参考以下代码或`web-client-examples/index.html`,这是一个最简化的客户端示例。
 
 ### 客户端示例代码
 
@@ -101,10 +93,13 @@ docker compose up -d
 
 ```
 
-## 说明
+## 使用方法
 
-- 服务默认监听15001端口，可以在app.js中修改：
-
+1. 启动服务后，服务将在15001端口监听WebSocket连接
+2. 客户端通过WebSocket连接到服务，把rtsp地址作为参数拼接到ws服务的url的后面
+3. 服务将RTSP流转换为FLV格式并通过WebSocket发送给客户端，客户端接收到FLV数据后，通过flv.js库播放
+4. 客户端实例代码请参考实例代码或`web-client-examples/index.html`,包含一个最基础的客户端示例。
+5. 服务默认监听15001端口，可以在app.js中修改：
 ```javascript
 const wss = new WebSocketServer({ port: 15001, perMessageDeflate: false })
 ```
