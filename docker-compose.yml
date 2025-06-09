@@ -1,0 +1,8 @@
+services:
+  rtsp-to-flv-server:
+    build: .
+    container_name: rtsp-to-flv-server
+    restart: always
+    ports:
+      - '15001:15001'
+

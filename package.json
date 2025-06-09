@@ -1,0 +1,17 @@
+{
+  "name": "rtsp-to-flv-server",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fluent-ffmpeg": "^2.1.2",
+    "websocket-stream": "^5.5.2",
+    "ws": "^8.13.0"
+  }
+}
