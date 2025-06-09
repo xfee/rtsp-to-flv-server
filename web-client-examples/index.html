@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FLV over WebSocket</title>
+  <script src="https://cdn.jsdelivr.net/npm/flv.js@1.6.2/dist/flv.min.js"></script>
+</head>
+<body>
+  <video id="videoElement" controls autoplay muted width="640" height="360"></video>
+
+  <script>
+    if (flvjs.isSupported()) {
+      const videoElement = document.getElementById('videoElement');
+
+      // 转码服务地址
+      const serverAddress = '192.168.1.231:15001';
+
+      // RTSP流地址
+      let rtspUrl = 'rtsp://admin:yf202505@192.168.1.211:554/cam/realmonitor?channel=1&subtype=0';
+
+      const flvPlayer = flvjs.createPlayer({
+        type: 'flv',
+        isLive: true,
+        url: 'ws://' + serverAddress + '/' + rtspUrl
+        // url: `ws://192.168.1.231:15001/rtsp://admin:yf202505@192.168.1.211:554/cam/realmonitor?channel=1&subtype=0`
+      });
+
+      flvPlayer.attachMediaElement(videoElement);
+      flvPlayer.load();
+      flvPlayer.play();
+    } else {
+      alert('FLV.js is not supported in your browser.');
+    }
+  </script>
+</body>
+</html>

@@ -32,11 +32,11 @@
 
 ```bash
 # 克隆项目
-git clone [repository-url]
+git clone https://github.com/xfee/rtsp-to-flv-server.git
 cd rtsp-to-flv-server
 
-# 使用Docker Compose构建并启动,若首次构建需要数分钟
-docker-compose up -d
+# 使用Docker Compose构建并启动
+docker compose up -d
 ```
 
 ## 使用方法
@@ -44,6 +44,7 @@ docker-compose up -d
 1. 启动服务后，服务将在15001端口监听WebSocket连接
 2. 客户端通过WebSocket连接到服务，连接URL中包含RTSP流地址
 3. 服务将RTSP流转换为FLV格式并通过WebSocket发送给客户端
+4. 客户端实例代码请参考以下代码或`web-client-examples/index.html`,这是一个最简化的客户端示例。
 
 ### 客户端示例代码
 
@@ -63,15 +64,17 @@ docker-compose up -d
     if (flvjs.isSupported()) {
       const videoElement = document.getElementById('videoElement');
 
+      // 转码服务地址
       const serverAddress = '192.168.1.231:15001';
 
+      // RTSP流地址
       let rtspUrl = 'rtsp://admin:yf202505@192.168.1.211:554/cam/realmonitor?channel=1&subtype=0';
 
       const flvPlayer = flvjs.createPlayer({
         type: 'flv',
         isLive: true,
-
-        url: 'ws://192.168.1.231:15001/rtsp://admin:yf202505@192.168.1.211:554/Streaming/Channels/101/'
+        url: 'ws://' + serverAddress + '/' + rtspUrl
+        // url: `ws://192.168.1.231:15001/rtsp://admin:yf202505@192.168.1.211:554/cam/realmonitor?channel=1&subtype=0`
       });
 
       flvPlayer.attachMediaElement(videoElement);
@@ -94,8 +97,6 @@ docker-compose up -d
 const wss = new WebSocketServer({ port: 15001, perMessageDeflate: false })
 ```
 
-
-
 ## 许可证
 
 ISC
@@ -106,6 +107,6 @@ ISC
 
 ## 注意事项
 
-- 确保您有权访问RTSP流
+- 确保您有权访问RTSP流，建议先使用vlc等工具测试RTSP流是否可以正常播放
 - 高并发场景下需要考虑服务器性能和网络带宽
 - FFmpeg转码过程会消耗一定的CPU资源
