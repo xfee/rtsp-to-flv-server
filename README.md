@@ -39,7 +39,7 @@
 
 ### 前提条件
 
-- Docker和Docker Compose
+- Docker >= 20.10 (内置docker compose), 20.10以下版本需安装docker-compose
 
 ### Docker部署
 
